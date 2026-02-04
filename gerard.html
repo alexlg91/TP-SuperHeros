@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>GERARD</title>
+        <script src="https://unpkg.com/vue@3"></script>
+        <script src="https://unpkg.com/axios@latest"></script>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body>
+
+        <div id="app" class="container my-5">
+            <!-- Barre de navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+                <a class="navbar-brand" href="#">Superhéros</a>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item"><a class="nav-link" href="#" @click="showHome">Accueil</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" @click="showSuperPowerMatcher">SuperPower Matcher</a></li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Page d'accueil : Liste des superhéros -->
+            <div v-if="page === 'home'">
+                <input type="text" class="form-control mb-3" v-model="searchQuery" placeholder="Rechercher un superhéros">
+                <ul class="list-group">
+                    <li v-for="hero in filteredSuperheros" :key="hero.id" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" @click="showDetails(hero)">
+                        <img :src="hero.images.md" class="rounded-circle" width="50" alt="Image">
+                        <h5 class="mb-0">{{ hero.name }}</h5>
+                        <small>{{ hero.id }}</small>
+                    </li>
+                </ul>
+                <div class="form-check mt-3">
+                    <input type="checkbox" class="form-check-input" id="showPowers" v-model="showPowers">
+                    <label class="form-check-label" for="showPowers">Afficher les pouvoirs</label>
+                </div>
+                <div v-if="showPowers">
+                    <ul class="list-group mt-3">
+                        <li v-for="hero in filteredSuperheros" :key="hero.id" class="list-group-item">
+                            <strong>{{ hero.name }}</strong> - Pouvoirs : Force {{ hero.powerstats.strength }}, Vitesse {{ hero.powerstats.speed }}, etc.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Détails d'un superhéros -->
+            <div v-if="page === 'details'">
+                <button class="btn btn-secondary mb-3" @click="showHome">Retour</button>
+                <h3>{{ selectedHero.name }}</h3>
+                <img :src="selectedHero.images.lg" class="rounded mb-3" width="150" alt="Image">
+                <p><strong>Biographie :</strong> {{ selectedHero.biography.fullName }}</p>
+                <p><strong>Pouvoirs :</strong> Force {{ selectedHero.powerstats.strength }}, Vitesse {{ selectedHero.powerstats.speed }}, Intelligence {{ selectedHero.powerstats.intelligence }}</p>
+            </div>
+
+            <!-- SuperPower Matcher -->
+            <div v-if="page === 'superPowerMatcher'">
+                <button class="btn btn-secondary mb-3" @click="showHome">Retour</button>
+                <h3>SuperPower Matcher</h3>
+                <div class="form-group">
+                    <label>Sélectionnez les pouvoirs souhaités :</label>
+                    <div class="form-check" v-for="power in powerOptions" :key="power">
+                        <input type="checkbox" class="form-check-input" :id="power" v-model="selectedPowers" :value="power">
+                        <label class="form-check-label" :for="power">{{ power }}</label>
+                    </div>
+                </div>
+                <button class="btn btn-primary" @click="matchSuperheroes">Trouver des superhéros</button>
+                <ul class="list-group mt-3">
+                    <li v-for="hero in matchedSuperheroes" :key="hero.id" class="list-group-item">{{ hero.name }}</li>
+                </ul>
+            </div>
+        </div>
+
+        <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    page: 'home',
+                    superheros: [],
+                    searchQuery: '',
+                    showPowers: false,
+                    selectedHero: null,
+                    powerOptions: ['strength', 'speed', 'intelligence', 'durability', 'power', 'combat'],
+                    selectedPowers: [],
+                    matchedSuperheroes: [],
+                };
+            },
+
+            computed: {
+                filteredSuperheros() {
+                    return this.superheros.filter(hero => 
+                        hero.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+                    );
+                }
+            },
+
+            methods: {
+                showHome() {
+                    this.page = 'home';
+                    this.selectedHero = null;
+                },
+                showDetails(hero) {
+                    this.page = 'details';
+                    this.selectedHero = hero;
+                },
+                showSuperPowerMatcher() {
+                    this.page = 'superPowerMatcher';
+                },
+                matchSuperheroes() {
+                    this.matchedSuperheroes = this.superheros.filter(hero =>
+                        this.selectedPowers.every(power => hero.powerstats[power] > 50)
+                    );
+                }
+            },
+            
+            mounted() {
+                axios.get('https://cdn.jsdelivr.net/gh/rtomczak/superhero-api@0.3.0/api/all.json')
+                    .then(response => {
+                        this.superheros = response.data;
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+            }
+        });
+
+        app.mount('#app');
+        </script>
+
+    </body>
+</html>

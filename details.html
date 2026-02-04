@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TP VUE.JS DETAILS</title>
+        <script src="https://unpkg.com/vue@3"></script>
+        <script src="https://unpkg.com/axios@latest"></script>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+
+    <body>
+        <div id="app" class="container my-4">
+            <div id="navbarplaceholder"></div>
+
+            <div v-if="hero" class="list-group">
+                <div class="d-flex align-items-start">
+                    <img :src="hero.images.md" width="250" alt="Image" class="mr-3 rounded">
+                    <div>
+                        <h1>{{ hero.name }} <small>ID: {{ hero.id }}</small></h1>
+                        <p>
+                            <strong>STATS:</strong> <br>
+                            Intelligence: {{ hero.powerstats.intelligence }} <br>
+                            Force: {{ hero.powerstats.strength }} <br>
+                            Vitesse: {{ hero.powerstats.speed }} <br>
+                            Durabilité: {{ hero.powerstats.durability }} <br>
+                            Pouvoirs: {{ hero.powerstats.power }} <br>
+                            Combat: {{ hero.powerstats.combat }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div v-else-if="searchMode" class="mt-4">
+                <h2>Rechercher un superhéros</h2>
+                <input type="text" v-model="searchQuery" @input="searchHeroes" class="form-control" placeholder="Entrez le nom du superhéros">
+                
+                <ul class="list-group mt-2">
+                    <li v-for="result in searchResults" :key="result.id" class="list-group-item">
+                        <a :href="'details.html?id=' + result.id">{{ result.name }}</a>
+                    </li>
+                </ul>
+            </div>
+
+            <p v-else>Chargement du superhéros...</p>
+        </div>
+    </body>
+
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    hero: null,
+                    searchMode: false,
+                    searchQuery: '',
+                    searchResults: [],
+                    allHeroes: []
+                };
+            },
+
+            mounted() {
+                const heroId = new URLSearchParams(window.location.search).get('id');
+                
+                axios.get('https://cdn.jsdelivr.net/gh/rtomczak/superhero-api@0.3.0/api/all.json')
+                    .then(response => {
+                        this.allHeroes = response.data;
+                        
+                        if (heroId) {
+                            this.hero = this.allHeroes.find(hero => hero.id == heroId);
+                        } else {
+                            this.searchMode = true;
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+                fetch('navbar.html')
+                    .then(response => response.text())
+                    .then(data => {
+                        document.getElementById("navbarplaceholder").innerHTML = data;
+                    });
+            },
+
+            methods: {
+                searchHeroes() {
+                    // Filtrer les héros selon le nom entré dans la barre de recherche
+                    const query = this.searchQuery.toLowerCase();
+                    this.searchResults = this.allHeroes.filter(hero =>
+                        hero.name.toLowerCase().includes(query)
+                    );
+                }
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</html>

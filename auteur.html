@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TP VUE.JS AUTEUR PAGE</title>
+        <script src="https://unpkg.com/vue@3"></script>
+        <script src="https://unpkg.com/axios@latest"></script>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+
+    <div id="app" class="container my-4" v-if="ishome">
+        <div id="navbarplaceholder"></div>
+
+        <h1>LEGER Alexandre</h1><br>
+        <strong>STATS :</strong><br>
+        <small>Intelligence : 100</small><br>
+        <small>Force : 100</small><br>
+        <small>Vitesse : 100</small><br>
+        <small>Durabilité : 100</small><br>
+        <small>Pouvoirs : 100</small><br>
+        <small>Combat : 100</small><br><br>
+        <strong>DESCRIPTION :</strong><br>
+        <p>Etudiant en licence informatique, le monde ne le connaît pas encore <br>
+            mais un jour il sera le plus grand des superhéros du monde de l'informatique !</p>
+
+    </div>
+    
+
+</html>
+
+<script>
+    const app = Vue.createApp({
+              
+        mounted() {
+
+            fetch('navbar.html')
+                .then(response => response.text())
+                .then(data => {
+                document.getElementById("navbarplaceholder").innerHTML = data;
+                })
+
+        },
+
+    });
+    app.mount('#app');
+</script>

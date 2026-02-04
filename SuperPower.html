@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TP VUE.JS SuperPower Matcher</title>
+        <script src="https://unpkg.com/vue@3"></script>
+        <script src="https://unpkg.com/axios@latest"></script>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+
+    <div id="app" class="container my-4" v-if="ishome">
+        <div id="navbarplaceholder"></div>
+
+        <h1>SuperPower Matcher</h1>
+
+        <input type="range" id="intelligence" name="Intelligence" min="0" max="100" v-model="intelligence"/>Intelligence : {{intelligence}}<br>
+        <input type="range" id="force" name="Force" min="0" max="100" v-model="force"/>Force : {{force}}<br>
+        <input type="range" id="Vitesse" name="Intelligence" min="0" max="100" v-model="vitesse"/>Vitesse : {{vitesse}}<br>
+    </div>
+
+    <ul class="list-group" >
+        <li v-for="hero in filteredSuperheros" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{ hero.name }}</h5>
+            <img :src="hero.images.md" class="rounded-circle" width="50" alt="Image">
+            <small v-if="ispower">STATS: Intellignce: {{ hero.powerstats.intelligence }} Force: {{ hero.powerstats.strength }} Vitesse: {{ hero.powerstats.speed }} Durabilité: {{ hero.powerstats.durability }} Pouvoirs: {{ hero.powerstats.power }} Combat: {{ hero.powerstats.combat }}</small>
+            <small>ID: {{ hero.id }}</small>
+        </li>
+    </ul>
+
+</html>
+
+<script>
+    const app = Vue.createApp({
+        data: function(){
+            return {
+                intelligence:50,
+                force:50,
+                vitesse:50,
+            }
+        },
+              
+        mounted() {
+
+            fetch('navbar.html')
+                .then(response => response.text())
+                .then(data => {
+                document.getElementById("navbarplaceholder").innerHTML = data;
+                })
+        },
+        
+        computed: {
+                    filteredSuperheros() {
+                        return this.superheros.filter(
+                            hero => hero.name.toLowerCase().includes(this.searchtexte.toLowerCase())
+                        );
+                    },                    
+                },
+    });
+    app.mount('#app');
+</script>
